@@ -53,7 +53,8 @@ async function TrabajosPage() {
       <TrabajosTable 
         trabajos={trabajosSerializados} 
         clientes={clientes} 
-        tiposServicio={tiposServicio} 
+        tiposServicio={tiposServicio}
+        userRol={session?.user?.rol}
       />
     </div>
   )

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 interface Trabajo {
   id: string
@@ -40,13 +41,18 @@ interface Props {
   trabajos: Trabajo[]
   clientes: Cliente[]
   tiposServicio: TipoServicio[]
+  userRol?: string
 }
 
-export function TrabajosTable({ trabajos, clientes, tiposServicio }: Props) {
+export function TrabajosTable({ trabajos, clientes, tiposServicio, userRol }: Props) {
+  const router = useRouter()
   const [busqueda, setBusqueda] = useState("")
   const [clienteFiltro, setClienteFiltro] = useState("")
   const [tipoFiltro, setTipoFiltro] = useState("")
   const [estadoFiltro, setEstadoFiltro] = useState("")
+  const [eliminando, setEliminando] = useState<string | null>(null)
+
+  const puedeEliminar = userRol === "ADMIN" || userRol === "SUPER_ADMIN"
 
   const trabajosFiltrados = useMemo(() => {
     return trabajos.filter((trabajo) => {
@@ -85,6 +91,31 @@ export function TrabajosTable({ trabajos, clientes, tiposServicio }: Props) {
     setClienteFiltro("")
     setTipoFiltro("")
     setEstadoFiltro("")
+  }
+
+  const handleEliminar = async (trabajoId: string, codigo: string) => {
+    if (!confirm(`¿Está seguro de eliminar el trabajo ${codigo}? Se eliminarán también los documentos asociados.`)) {
+      return
+    }
+
+    setEliminando(trabajoId)
+    try {
+      const res = await fetch(`/api/trabajos/${trabajoId}`, {
+        method: "DELETE"
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        alert(data.error || "Error al eliminar trabajo")
+        return
+      }
+
+      router.refresh()
+    } catch {
+      alert("Error al eliminar trabajo")
+    } finally {
+      setEliminando(null)
+    }
   }
 
   return (
@@ -233,6 +264,15 @@ export function TrabajosTable({ trabajos, clientes, tiposServicio }: Props) {
                         >
                           Editar
                         </Link>
+                        {puedeEliminar && (
+                          <button
+                            onClick={() => handleEliminar(trabajo.id, trabajo.codigo)}
+                            disabled={eliminando === trabajo.id}
+                            className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                          >
+                            {eliminando === trabajo.id ? "Eliminando..." : "Eliminar"}
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
