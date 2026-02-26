@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(clientes)
 }
 
-// POST - Crear cliente
+// POST - Crear cliente o administrador
 export async function POST(request: NextRequest) {
   const session = await auth()
   
@@ -64,11 +64,17 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { nombre, nit, direccion, telefono, email, observaciones } = body
+    const { nombre, nit, direccion, telefono, email, observaciones, rol } = body
 
     // Validar campos requeridos
     if (!nombre || !email) {
       return NextResponse.json({ error: "Nombre y email son requeridos" }, { status: 400 })
+    }
+
+    // Validar rol - solo SUPER_ADMIN puede crear ADMIN
+    const rolFinal = rol || "CLIENTE"
+    if (rolFinal === "ADMIN" && session.user.rol !== "SUPER_ADMIN") {
+      return NextResponse.json({ error: "Solo SUPER_ADMIN puede crear usuarios ADMIN" }, { status: 403 })
     }
 
     // Verificar si el email ya existe
@@ -93,42 +99,55 @@ export async function POST(request: NextRequest) {
           email,
           password: passwordHash,
           nombre,
-          rol: "CLIENTE"
+          rol: rolFinal
         }
       })
 
-      // Crear cliente
-      const cliente = await tx.cliente.create({
-        data: {
-          codigo,
-          nombre,
-          nit,
-          direccion,
-          telefono,
-          email,
-          observaciones,
-          usuarioId: usuario.id
-        },
-        include: {
-          usuario: {
-            select: { id: true, email: true, nombre: true }
+      // Si es CLIENTE, crear registro de cliente
+      if (rolFinal === "CLIENTE") {
+        const cliente = await tx.cliente.create({
+          data: {
+            codigo,
+            nombre,
+            nit,
+            direccion,
+            telefono,
+            email,
+            observaciones,
+            usuarioId: usuario.id
+          },
+          include: {
+            usuario: {
+              select: { id: true, email: true, nombre: true }
+            }
           }
-        }
-      })
+        })
+        return { cliente, usuario }
+      }
 
-      return cliente
+      // Si es ADMIN, solo retornar el usuario
+      return { 
+        cliente: null, 
+        usuario: {
+          id: usuario.id,
+          email: usuario.email,
+          nombre: usuario.nombre,
+          rol: usuario.rol
+        }
+      }
     })
 
     return NextResponse.json({
-      cliente: resultado,
+      cliente: resultado.cliente,
       usuario: {
         email: email,
-        password: passwordTemporal
+        password: passwordTemporal,
+        rol: rolFinal
       }
     })
   } catch (error) {
-    console.error("Error al crear cliente:", error)
-    return NextResponse.json({ error: "Error al crear cliente" }, { status: 500 })
+    console.error("Error al crear usuario:", error)
+    return NextResponse.json({ error: "Error al crear usuario" }, { status: 500 })
   }
 }
 
