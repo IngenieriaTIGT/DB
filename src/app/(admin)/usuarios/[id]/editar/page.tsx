@@ -29,6 +29,9 @@ export default function EditarUsuarioPage() {
   const [error, setError] = useState("")
   const [usuario, setUsuario] = useState<Usuario | null>(null)
   const [esAdminPrincipal, setEsAdminPrincipal] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [newPassword, setNewPassword] = useState("")
+  const [resettingPassword, setResettingPassword] = useState(false)
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -146,6 +149,38 @@ export default function EditarUsuarioPage() {
       router.push("/usuarios")
     } catch {
       setError("Error al eliminar usuario")
+    }
+  }
+
+  const handleResetPassword = async () => {
+    if (!confirm("¿Está seguro de generar una nueva contraseña temporal para este usuario?")) {
+      return
+    }
+
+    setResettingPassword(true)
+    setError("")
+
+    try {
+      const res = await fetch("/api/usuarios/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usuarioId })
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || "Error al resetear contraseña")
+        setResettingPassword(false)
+        return
+      }
+
+      setNewPassword(data.password)
+      setShowPassword(true)
+    } catch {
+      setError("Error al resetear contraseña")
+    } finally {
+      setResettingPassword(false)
     }
   }
 
@@ -354,6 +389,102 @@ export default function EditarUsuarioPage() {
           </div>
         )}
       </form>
+
+      {/* Modal de contraseña reseteada */}
+      {showPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">¡Contraseña Reseteada!</h2>
+              <p className="text-gray-600 mt-2">Comparte estas credenciales con el usuario</p>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Email de acceso</label>
+                  <div className="mt-1 flex items-center gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={usuario?.email || ""}
+                      className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm"
+                    />
+                    <button
+                      onClick={() => navigator.clipboard.writeText(usuario?.email || "")}
+                      className="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+                    >
+                      Copiar
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Nueva contraseña temporal</label>
+                  <div className="mt-1 flex items-center gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={newPassword}
+                      className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-mono"
+                    />
+                    <button
+                      onClick={() => navigator.clipboard.writeText(newPassword)}
+                      className="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+                    >
+                      Copiar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-yellow-800">
+                <strong>Importante:</strong> El usuario deberá cambiar su contraseña al iniciar sesión.
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                setShowPassword(false)
+                setNewPassword("")
+              }}
+              className="w-full px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Sección de resetear contraseña */}
+      <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Seguridad</h3>
+        
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-600">Generar una nueva contraseña temporal para este usuario.</p>
+            <p className="text-xs text-gray-400 mt-1">La contraseña actual será reemplazada.</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleResetPassword}
+            disabled={resettingPassword || esAdminPrincipal}
+            className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg font-medium hover:bg-yellow-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {resettingPassword ? "Generando..." : "Resetear Contraseña"}
+          </button>
+        </div>
+
+        {esAdminPrincipal && (
+          <p className="text-xs text-red-500 mt-2">No se puede resetear la contraseña del Super Administrador principal.</p>
+        )}
+      </div>
     </div>
   )
 }
