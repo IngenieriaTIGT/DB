@@ -12,7 +12,9 @@ export function middleware(request: NextRequest) {
                        request.cookies.get("__Secure-next-auth.session-token")
   
   const isLoggedIn = !!sessionToken?.value
-  const isPublicRoute = nextUrl.pathname === "/login" || nextUrl.pathname === "/"
+  const isPublicRoute = nextUrl.pathname === "/login" || 
+                        nextUrl.pathname === "/" ||
+                        nextUrl.pathname.startsWith("/api/test-db")
 
   // Rutas protegidas
   const isAdminRoute = nextUrl.pathname.startsWith("/dashboard") || 
