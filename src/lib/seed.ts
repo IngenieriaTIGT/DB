@@ -6,21 +6,34 @@ const prisma = new PrismaClient()
 async function main() {
   console.log("🌱 Iniciando seed...")
 
-  // Crear usuario admin
-  const adminPassword = await bcrypt.hash("admin123", 10)
-  const admin = await prisma.usuario.upsert({
-    where: { email: "admin@poligrafo.com" },
+  // ==========================================
+  // SUPER ADMIN - Ingeniería TI GT
+  // ==========================================
+  const superAdminPassword = await bcrypt.hash("Princesa@lis1702", 10)
+  const superAdmin = await prisma.usuario.upsert({
+    where: { email: "administrador@ingenieriatigt.com" },
     update: {},
     create: {
-      email: "admin@poligrafo.com",
-      password: adminPassword,
-      nombre: "Administrador",
-      rol: "ADMIN"
+      email: "administrador@ingenieriatigt.com",
+      password: superAdminPassword,
+      nombre: "super_admin",
+      rol: "SUPER_ADMIN"
     }
   })
-  console.log("✅ Usuario admin creado:", admin.email)
+  console.log("✅ Super Admin creado:", superAdmin.email)
 
-  // Crear tipos de servicio por defecto
+  // ==========================================
+  // ADMIN - CT Consultores
+  // Se crea manualmente desde el panel de SUPER_ADMIN
+  // ==========================================
+  // El administrador de CT Consultores se crea manualmente
+  // desde el panel de administración con las credenciales que el cliente defina
+
+  // ==========================================
+  // TIPOS DE SERVICIO
+  // ==========================================
+  
+  // 1. Polígrafo
   const tipoPoligrafo = await prisma.tipoServicio.upsert({
     where: { nombre: "Polígrafo" },
     update: {},
@@ -36,8 +49,9 @@ async function main() {
       ])
     }
   })
-  console.log("✅ Tipo de servicio creado:", tipoPoligrafo.nombre)
+  console.log("✅ Tipo de servicio:", tipoPoligrafo.nombre)
 
+  // 2. Visita Socioeconómica
   const tipoVisita = await prisma.tipoServicio.upsert({
     where: { nombre: "Visita Socioeconómica" },
     update: {},
@@ -55,8 +69,9 @@ async function main() {
       ])
     }
   })
-  console.log("✅ Tipo de servicio creado:", tipoVisita.nombre)
+  console.log("✅ Tipo de servicio:", tipoVisita.nombre)
 
+  // 3. Investigación de Antecedentes
   const tipoAntecedentes = await prisma.tipoServicio.upsert({
     where: { nombre: "Investigación de Antecedentes" },
     update: {},
@@ -72,11 +87,37 @@ async function main() {
       ])
     }
   })
-  console.log("✅ Tipo de servicio creado:", tipoAntecedentes.nombre)
+  console.log("✅ Tipo de servicio:", tipoAntecedentes.nombre)
 
-  console.log("🎉 Seed completado!")
-  console.log("\n📋 Credenciales de acceso:")
-  console.log("   Admin: admin@poligrafo.com / admin123")
+  // 4. Verificación de Empleo
+  const tipoVerificacion = await prisma.tipoServicio.upsert({
+    where: { nombre: "Verificación de Empleo" },
+    update: {},
+    create: {
+      nombre: "Verificación de Empleo",
+      descripcion: "Verificación de historial laboral y referencias profesionales",
+      campos: JSON.stringify([
+        { nombre: "nombreCandidato", label: "Nombre del Candidato", tipo: "texto", requerido: true },
+        { nombre: "empresaAnterior", label: "Empresa Anterior", tipo: "texto", requerido: true },
+        { nombre: "puesto", label: "Puesto Desempeñado", tipo: "texto", requerido: false },
+        { nombre: "periodo", label: "Período Laboral", tipo: "texto", requerido: false },
+        { nombre: "motivoSalida", label: "Motivo de Salida", tipo: "texto", requerido: false },
+        { nombre: "observaciones", label: "Observaciones", tipo: "textarea", requerido: false }
+      ])
+    }
+  })
+  console.log("✅ Tipo de servicio:", tipoVerificacion.nombre)
+
+  console.log("\n🎉 Seed completado!")
+  console.log("\n📋 CREDENCIALES DE ACCESO:")
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+  console.log("🔧 SUPER ADMIN (Ingeniería TI GT):")
+  console.log("   Email: administrador@ingenieriatigt.com")
+  console.log("   Password: Princesa@lis1702")
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+  console.log("🏢 ADMIN (CT Consultores):")
+  console.log("   Se crea manualmente desde el panel de administración")
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 }
 
 main()

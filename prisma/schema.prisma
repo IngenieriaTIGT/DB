@@ -29,8 +29,9 @@ model Usuario {
 }
 
 enum Rol {
-  ADMIN
-  CLIENTE
+  SUPER_ADMIN    // Ingeniería TI GT - Acceso total
+  ADMIN          // CT Consultores - Gestión de clientes y trabajos
+  CLIENTE        // Clientes de CT Consultores - Solo ven sus trabajos
 }
 
 // Cliente (empresa o persona que recibe servicios)

@@ -6,7 +6,7 @@ import { LogoutButton } from "@/components/LogoutButton"
 async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
   
-  if (!session || session.user.rol !== "ADMIN") {
+  if (!session || (session.user.rol !== "ADMIN" && session.user.rol !== "SUPER_ADMIN")) {
     redirect("/login")
   }
 

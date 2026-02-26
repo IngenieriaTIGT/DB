@@ -8,10 +8,12 @@ async function RedirectPage() {
     redirect("/login")
   }
   
-  if (session.user.rol === "ADMIN") {
+  // SUPER_ADMIN y ADMIN van al dashboard
+  if (session.user.rol === "SUPER_ADMIN" || session.user.rol === "ADMIN") {
     redirect("/dashboard")
   }
   
+  // CLIENTE va al portal
   redirect("/portal")
 }
 

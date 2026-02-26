@@ -29,7 +29,7 @@ export function middleware(request: NextRequest) {
 
   // Si está logueado y trata de acceder a login o raíz
   if (isLoggedIn && (nextUrl.pathname === "/login" || nextUrl.pathname === "/")) {
-    // Redirigir a una página por defecto
+    // Redirigir a página de redirección
     return NextResponse.redirect(new URL("/redirect", nextUrl))
   }
 
