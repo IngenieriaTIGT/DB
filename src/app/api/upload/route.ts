@@ -5,11 +5,11 @@ import { writeFile, mkdir } from "fs/promises"
 import path from "path"
 import { existsSync } from "fs"
 
-// POST - Subir documento
+// POST - Subir documento (ADMIN y SUPER_ADMIN pueden subir, CLIENTE también puede subir a sus propios trabajos)
 export async function POST(request: NextRequest) {
   const session = await auth()
   
-  if (!session || (session.user.rol !== "ADMIN" && session.user.rol !== "SUPER_ADMIN")) {
+  if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 
@@ -24,11 +24,22 @@ export async function POST(request: NextRequest) {
 
     // Verificar que el trabajo existe
     const trabajo = await prisma.trabajo.findUnique({
-      where: { id: trabajoId }
+      where: { id: trabajoId },
+      include: { cliente: true }
     })
 
     if (!trabajo) {
       return NextResponse.json({ error: "Trabajo no encontrado" }, { status: 404 })
+    }
+
+    // Si es CLIENTE, verificar que el trabajo sea suyo
+    if (session.user.rol === "CLIENTE") {
+      const cliente = await prisma.cliente.findFirst({
+        where: { usuarioId: session.user.id }
+      })
+      if (!cliente || trabajo.clienteId !== cliente.id) {
+        return NextResponse.json({ error: "No autorizado - Este trabajo no pertenece a su cuenta" }, { status: 403 })
+      }
     }
 
     // Crear directorio de uploads si no existe
