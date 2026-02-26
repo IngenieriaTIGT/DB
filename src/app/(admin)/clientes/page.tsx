@@ -1,7 +1,11 @@
 import { prisma } from "@/lib/db"
+import { auth } from "@/lib/auth"
 import Link from "next/link"
 
 async function ClientesPage() {
+  const session = await auth()
+  const isSuperAdmin = session?.user?.rol === "SUPER_ADMIN"
+
   const clientes = await prisma.cliente.findMany({
     include: {
       usuario: {
@@ -97,6 +101,14 @@ async function ClientesPage() {
                         >
                           Editar
                         </Link>
+                        {isSuperAdmin && (
+                          <Link
+                            href={`/clientes/${cliente.id}/eliminar`}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            Eliminar
+                          </Link>
+                        )}
                       </div>
                     </td>
                   </tr>
