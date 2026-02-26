@@ -9,7 +9,6 @@ declare module "next-auth" {
       id: string
       email: string
       nombre: string
-      imagen?: string
       rol: string
       clienteId?: string
     }
@@ -17,7 +16,6 @@ declare module "next-auth" {
   interface User {
     id: string
     nombre: string
-    imagen?: string
     rol: string
     clienteId?: string
   }
@@ -28,7 +26,6 @@ declare module "@auth/core/jwt" {
     id: string
     email: string
     nombre: string
-    imagen?: string
     rol: string
     clienteId?: string
   }
@@ -69,7 +66,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           id: usuario.id,
           email: usuario.email,
           nombre: usuario.nombre,
-          imagen: usuario.imagen,
           rol: usuario.rol,
           clienteId: usuario.cliente?.id
         }
@@ -82,7 +78,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.id = user.id!
         token.email = user.email!
         token.nombre = user.nombre!
-        token.imagen = user.imagen
         token.rol = user.rol!
         token.clienteId = user.clienteId
       }
@@ -92,7 +87,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.id = token.id
       session.user.email = token.email
       session.user.nombre = token.nombre
-      session.user.imagen = token.imagen
       session.user.rol = token.rol
       session.user.clienteId = token.clienteId
       return session

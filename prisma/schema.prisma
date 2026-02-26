@@ -15,7 +15,6 @@ model Usuario {
   email         String    @unique
   password      String
   nombre        String
-  imagen        String?   // URL de la foto de perfil
   rol           Rol       @default(CLIENTE)
   activo        Boolean   @default(true)
   createdAt     DateTime  @default(now())
