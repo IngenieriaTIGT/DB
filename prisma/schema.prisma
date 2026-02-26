@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// Usuario del sistema (Admin o Cliente)
+model Usuario {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  nombre        String
+  rol           Rol       @default(CLIENTE)
+  activo        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Recuperación de contraseña
+  codigoRecuperacion    String?
+  codigoRecuperacionExp DateTime?
+  
+  // Relaciones
+  cliente       Cliente?
+}
+
+enum Rol {
+  ADMIN
+  CLIENTE
+}
+
+// Cliente (empresa o persona que recibe servicios)
+model Cliente {
+  id            String    @id @default(cuid())
+  codigo        String    @unique
+  nombre        String
+  nit           String?
+  direccion     String?
+  telefono      String?
+  email         String?
+  observaciones String?
+  activo        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relaciones
+  usuarioId     String    @unique
+  usuario       Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  trabajos      Trabajo[]
+}
+
+// Tipos de servicio ofrecidos
+model TipoServicio {
+  id            String    @id @default(cuid())
+  nombre        String    @unique
+  descripcion   String?
+  campos        String    // JSON string para SQLite
+  activo        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relaciones
+  trabajos      Trabajo[]
+}
+
+// Trabajo/Servicio realizado
+model Trabajo {
+  id            String    @id @default(cuid())
+  codigo        String    @unique
+  fecha         DateTime  @default(now())
+  estado        EstadoTrabajo @default(PENDIENTE)
+  observaciones String?
+  datos         String    // JSON string para SQLite
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relaciones
+  clienteId     String
+  cliente       Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  tipoServicioId String
+  tipoServicio  TipoServicio @relation(fields: [tipoServicioId], references: [id])
+  documentos    Documento[]
+}
+
+enum EstadoTrabajo {
+  PENDIENTE
+  EN_PROCESO
+  COMPLETADO
+  ENTREGADO
+}
+
+// Documentos adjuntos (PDFs, imágenes)
+model Documento {
+  id            String    @id @default(cuid())
+  nombre        String
+  nombreOriginal String
+  tipo          String    // MIME type
+  tamaño        Int       // en bytes
+  ruta          String    // ruta del archivo
+  createdAt     DateTime  @default(now())
+  
+  // Relaciones
+  trabajoId     String
+  trabajo       Trabajo   @relation(fields: [trabajoId], references: [id], onDelete: Cascade)
+}

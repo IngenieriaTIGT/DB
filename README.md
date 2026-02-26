@@ -1,36 +1,146 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portal Polígrafo - Sistema de Gestión de Servicios
 
-## Getting Started
+Sistema web para gestión de servicios de polígrafo y visitas socioeconómicas. Permite a los clientes ver sus trabajos realizados mediante un portal seguro.
 
-First, run the development server:
+Desarrollado por **Ingeniería TI GT** - Soluciones Tecnológicas Integrales
+
+## 🚀 Características
+
+- **Panel de Administración**: Gestión completa de clientes, servicios y trabajos
+- **Portal de Cliente**: Vista de trabajos realizados con opción de impresión
+- **Campos Dinámicos**: Campos personalizables por tipo de servicio
+- **Gestión de Documentos**: Subida y descarga de documentos adjuntos
+- **Autenticación Segura**: Sistema de roles (Admin/Cliente) con sesiones seguras
+- **Recuperación de Contraseña**: Sistema de código de verificación
+
+## 🛠️ Tecnologías
+
+- **Frontend**: Next.js 16.1.6 (App Router), React 19, TypeScript
+- **Backend**: Next.js API Routes, Prisma 7.4.1
+- **Base de Datos**: SQLite (desarrollo) / PostgreSQL (producción)
+- **Autenticación**: NextAuth.js v5
+- **Estilos**: Tailwind CSS 4
+- **Validación**: Zod, React Hook Form
+
+## 📋 Requisitos
+
+- Node.js 18+
+- npm o yarn
+
+## 🔧 Instalación Local
 
 ```bash
+# Clonar el repositorio
+git clone https://github.com/TU_USUARIO/portal-poligrafo.git
+cd portal-poligrafo
+
+# Instalar dependencias
+npm install
+
+# Configurar variables de entorno
+cp .env.example .env
+# Editar .env con tus valores
+
+# Generar cliente de Prisma
+npm run db:generate
+
+# Sincronizar base de datos
+npm run db:push
+
+# Ejecutar seed para datos iniciales
+npm run seed
+
+# Iniciar servidor de desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+El servidor estará disponible en: http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔐 Credenciales por Defecto
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Después de ejecutar el seed:
 
-## Learn More
+- **Admin**: `admin@poligrafo.com` / `admin123`
 
-To learn more about Next.js, take a look at the following resources:
+## 📁 Estructura del Proyecto
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+├── app/
+│   ├── (admin)/          # Rutas protegidas para administrador
+│   │   ├── dashboard/    # Panel principal
+│   │   ├── clientes/     # Gestión de clientes
+│   │   ├── tipos-servicio/ # Tipos de servicio
+│   │   └── trabajos/     # Gestión de trabajos
+│   ├── (auth)/           # Autenticación
+│   │   └── login/        # Página de login
+│   ├── (cliente)/        # Portal de cliente
+│   │   └── portal/       # Vista de trabajos del cliente
+│   └── api/              # API Routes
+├── components/           # Componentes reutilizables
+├── lib/                  # Utilidades y configuración
+└── types/                # Tipos TypeScript
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🗄️ Modelos de Base de Datos
 
-## Deploy on Vercel
+- **Usuario**: Usuarios del sistema (Admin/Cliente)
+- **Cliente**: Clientes de la empresa
+- **TipoServicio**: Tipos de servicio ofrecidos
+- **Trabajo**: Trabajos realizados a clientes
+- **Documento**: Documentos adjuntos a trabajos
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🚀 Despliegue
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Vercel (Recomendado)
+
+1. Conectar repositorio a Vercel
+2. Configurar variables de entorno
+3. Desplegar automáticamente
+
+### Variables de Entorno para Producción
+
+```env
+DATABASE_URL="postgresql://user:password@host:5432/database"
+NEXTAUTH_URL="https://tu-dominio.com"
+NEXTAUTH_SECRET="clave-secreta-muy-segura-32-caracteres"
+UPLOAD_DIR="/tmp/uploads"
+```
+
+### Pasos para Vercel:
+
+1. Crear cuenta en [Vercel](https://vercel.com)
+2. Importar repositorio desde GitHub
+3. Configurar variables de entorno en Settings > Environment Variables
+4. Deployar
+
+## 📝 Scripts Disponibles
+
+```bash
+npm run dev        # Servidor de desarrollo
+npm run build      # Build de producción
+npm run start      # Servidor de producción
+npm run lint       # Linter
+npm run db:generate # Generar cliente Prisma
+npm run db:push    # Sincronizar schema con DB
+npm run db:studio  # Abrir Prisma Studio
+npm run seed       # Ejecutar seed
+```
+
+## 🎨 Colores Institucionales
+
+- **Verde Principal**: #16a34a
+- **Negro/Gris Oscuro**: #171717
+
+## 📞 Contacto
+
+**Ingeniería TI GT**
+- Teléfono: +502 3533-6570
+- WhatsApp: [wa.me/50235336570](https://wa.me/50235336570)
+- Web: [www.ingenieriatigt.com](https://www.ingenieriatigt.com)
+
+---
+
+*"Si no lo sabemos, por ti lo aprendemos"*
+
+*Todo lo puedo en Cristo que me fortalece - Filipenses 4:13*
