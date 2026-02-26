@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 // Usuario del sistema (Admin o Cliente)
@@ -58,7 +58,7 @@ model TipoServicio {
   id            String    @id @default(cuid())
   nombre        String    @unique
   descripcion   String?
-  campos        String    // JSON string para SQLite
+  campos        String    // JSON string
   activo        Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -74,7 +74,7 @@ model Trabajo {
   fecha         DateTime  @default(now())
   estado        EstadoTrabajo @default(PENDIENTE)
   observaciones String?
-  datos         String    // JSON string para SQLite
+  datos         String    // JSON string
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   

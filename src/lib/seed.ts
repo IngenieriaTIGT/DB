@@ -1,12 +1,7 @@
 import { PrismaClient } from "@prisma/client"
-import { PrismaLibSql } from "@prisma/adapter-libsql"
 import bcrypt from "bcryptjs"
 
-const adapter = new PrismaLibSql({
-  url: 'file:./prisma/dev.db',
-})
-
-const prisma = new PrismaClient({ adapter })
+const prisma = new PrismaClient()
 
 async function main() {
   console.log("🌱 Iniciando seed...")
@@ -25,7 +20,7 @@ async function main() {
   })
   console.log("✅ Usuario admin creado:", admin.email)
 
-  // Crear tipos de servicio por defecto (campos como JSON string)
+  // Crear tipos de servicio por defecto
   const tipoPoligrafo = await prisma.tipoServicio.upsert({
     where: { nombre: "Polígrafo" },
     update: {},
