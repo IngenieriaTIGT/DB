@@ -88,15 +88,15 @@ export async function PATCH(
   }
 }
 
-// DELETE - Eliminar tipo de servicio
+// DELETE - Eliminar tipo de servicio (solo SUPER_ADMIN)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth()
   
-  if (!session || (session.user.rol !== "ADMIN" && session.user.rol !== "SUPER_ADMIN")) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 })
+  if (!session || session.user.rol !== "SUPER_ADMIN") {
+    return NextResponse.json({ error: "No autorizado - Solo SUPER_ADMIN puede eliminar" }, { status: 401 })
   }
 
   const { id } = await params

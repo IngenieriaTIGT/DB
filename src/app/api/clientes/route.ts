@@ -197,3 +197,54 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: "Error al actualizar cliente" }, { status: 500 })
   }
 }
+
+// DELETE - Eliminar cliente (solo SUPER_ADMIN)
+export async function DELETE(request: NextRequest) {
+  const session = await auth()
+  
+  if (!session || session.user.rol !== "SUPER_ADMIN") {
+    return NextResponse.json({ error: "No autorizado - Solo SUPER_ADMIN puede eliminar" }, { status: 401 })
+  }
+
+  const { searchParams } = new URL(request.url)
+  const id = searchParams.get("id")
+
+  if (!id) {
+    return NextResponse.json({ error: "ID de cliente requerido" }, { status: 400 })
+  }
+
+  try {
+    // Eliminar cliente y usuario
+    const cliente = await prisma.cliente.findUnique({
+      where: { id },
+      include: { usuario: true }
+    })
+
+    if (!cliente) {
+      return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 })
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // Eliminar trabajos y documentos relacionados
+      await tx.documento.deleteMany({
+        where: { trabajo: { clienteId: id } }
+      })
+      await tx.trabajo.deleteMany({
+        where: { clienteId: id }
+      })
+      // Eliminar cliente
+      await tx.cliente.delete({
+        where: { id }
+      })
+      // Eliminar usuario
+      await tx.usuario.delete({
+        where: { id: cliente.usuarioId }
+      })
+    })
+
+    return NextResponse.json({ message: "Cliente eliminado" })
+  } catch (error) {
+    console.error("Error al eliminar cliente:", error)
+    return NextResponse.json({ error: "Error al eliminar cliente" }, { status: 500 })
+  }
+}
