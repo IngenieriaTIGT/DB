@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
@@ -8,8 +8,11 @@ export default function NuevoClientePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [success, setSuccess] = useState<{ email: string; password: string; rol: string } | null>(null)
+  const [success, setSuccess] = useState<{ email: string; password: string; rol: string; usuarioId: string } | null>(null)
   const [esSuperAdmin, setEsSuperAdmin] = useState(false)
+  const [imagenPreview, setImagenPreview] = useState<string | null>(null)
+  const [imagenFile, setImagenFile] = useState<File | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -40,12 +43,39 @@ export default function NuevoClientePage() {
     })
   }
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validar tipo
+    const tiposPermitidos = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+    if (!tiposPermitidos.includes(file.type)) {
+      setError("Tipo de archivo no permitido. Use JPG, PNG, GIF o WebP")
+      return
+    }
+
+    // Validar tamaño (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setError("El archivo es muy grande. Máximo 2MB")
+      return
+    }
+
+    setImagenFile(file)
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setImagenPreview(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+    setError("")
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setLoading(true)
 
     try {
+      // Crear usuario
       const res = await fetch("/api/clientes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -60,16 +90,37 @@ export default function NuevoClientePage() {
         return
       }
 
+      // Si hay imagen, subirla
+      if (imagenFile && data.usuario) {
+        const formDataImagen = new FormData()
+        formDataImagen.append("file", imagenFile)
+        formDataImagen.append("usuarioId", data.usuario.id || "temp")
+
+        await fetch("/api/usuarios/foto", {
+          method: "POST",
+          body: formDataImagen
+        })
+      }
+
       setSuccess({
         email: data.usuario.email,
         password: data.usuario.password,
-        rol: formData.rol
+        rol: formData.rol,
+        usuarioId: data.usuario.id || ""
       })
     } catch {
       setError("Error al crear usuario")
       setLoading(false)
     }
   }
+
+  // Generar iniciales para el avatar
+  const iniciales = formData.nombre
+    .split(" ")
+    .map(n => n[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase()
 
   if (success) {
     return (
@@ -163,6 +214,8 @@ export default function NuevoClientePage() {
                   observaciones: "",
                   rol: "CLIENTE"
                 })
+                setImagenPreview(null)
+                setImagenFile(null)
               }}
               className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
             >
@@ -199,6 +252,38 @@ export default function NuevoClientePage() {
         )}
 
         <div className="space-y-6">
+          {/* Foto de perfil */}
+          <div className="flex flex-col items-center">
+            <div 
+              onClick={() => fileInputRef.current?.click()}
+              className="relative w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg cursor-pointer hover:ring-4 hover:ring-green-200 transition-all"
+            >
+              {imagenPreview ? (
+                <img 
+                  src={imagenPreview} 
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span>{iniciales || "?"}</span>
+              )}
+              <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+            <p className="text-gray-400 text-xs mt-2">Click para agregar foto (opcional)</p>
+          </div>
+
           {/* Selector de Rol - Solo visible para SUPER_ADMIN */}
           {esSuperAdmin && (
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">

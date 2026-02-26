@@ -32,6 +32,19 @@ async function ClienteLayout({ children }: { children: React.ReactNode }) {
                 <p className="text-sm font-medium text-white">{session.user.nombre}</p>
                 <p className="text-xs text-gray-400">{session.user.email}</p>
               </div>
+              <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center overflow-hidden">
+                {session.user.imagen ? (
+                  <img 
+                    src={session.user.imagen} 
+                    alt={session.user.nombre}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-white font-bold">
+                    {session.user.nombre.charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
               <LogoutButton />
             </div>
           </div>

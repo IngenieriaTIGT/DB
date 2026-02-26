@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
   const clientes = await prisma.cliente.findMany({
     include: {
       usuario: {
-        select: { id: true, email: true, nombre: true, activo: true }
+        select: { id: true, email: true, nombre: true, activo: true, imagen: true }
       },
       _count: {
         select: { trabajos: true }
@@ -140,6 +140,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       cliente: resultado.cliente,
       usuario: {
+        id: resultado.usuario.id,
         email: email,
         password: passwordTemporal,
         rol: rolFinal

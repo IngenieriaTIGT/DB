@@ -55,8 +55,18 @@ async function AdminLayout({ children }: { children: React.ReactNode }) {
           {/* User info */}
           <div className="p-4 border-t border-gray-800">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
-                {session.user.nombre.charAt(0).toUpperCase()}
+              <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center overflow-hidden">
+                {session.user.imagen ? (
+                  <img 
+                    src={session.user.imagen} 
+                    alt={session.user.nombre}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-white font-bold">
+                    {session.user.nombre.charAt(0).toUpperCase()}
+                  </span>
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{session.user.nombre}</p>
