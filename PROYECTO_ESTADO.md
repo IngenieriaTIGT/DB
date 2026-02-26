@@ -246,19 +246,20 @@ O hacer redeploy en Vercel (sin cache).
 2. ✅ Agregado soporte para SUPER_ADMIN en APIs
 3. ✅ Implementado selector de rol (ADMIN/CLIENTE) para SUPER_ADMIN
 4. ✅ Configurado permisos: ADMIN crea/modifica, SUPER_ADMIN elimina
-5. ✅ Agregadas fotos de perfil para todos los usuarios
-6. ✅ Creada página de perfil para cambiar foto
-7. ✅ Actualizado sidebar y navbar con avatares
+5. ✅ Movido botón de cerrar sesión a la esquina superior derecha
+6. ✅ Creada página de Usuarios para ver administradores
+7. ✅ Agregado menú "Usuarios" en el sidebar
+8. ⏸️ Fotos de perfil - pausado (no implementado)
 
 ---
 
 ## 🔜 Pendientes
 
 1. [ ] Actualizar NEXTAUTH_URL en Vercel
-2. [ ] Ejecutar migración de base de datos (campo imagen)
-3. [ ] Crear usuario ADMIN para CT Consultores
-4. [ ] Probar flujo completo de creación de trabajos
-5. [ ] Configurar dominio personalizado (opcional)
+2. [ ] Crear usuario ADMIN para CT Consultores
+3. [ ] Probar flujo completo de creación de trabajos
+4. [ ] Configurar dominio personalizado (opcional)
+5. [ ] Fotos de perfil (pausado - para más adelante)
 
 ---
 
