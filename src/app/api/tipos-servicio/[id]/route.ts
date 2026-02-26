@@ -33,7 +33,7 @@ export async function PUT(
 ) {
   const session = await auth()
   
-  if (!session || session.user.rol !== "ADMIN") {
+  if (!session || (session.user.rol !== "ADMIN" && session.user.rol !== "SUPER_ADMIN")) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 
@@ -66,7 +66,7 @@ export async function PATCH(
 ) {
   const session = await auth()
   
-  if (!session || session.user.rol !== "ADMIN") {
+  if (!session || (session.user.rol !== "ADMIN" && session.user.rol !== "SUPER_ADMIN")) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 
@@ -95,7 +95,7 @@ export async function DELETE(
 ) {
   const session = await auth()
   
-  if (!session || session.user.rol !== "ADMIN") {
+  if (!session || (session.user.rol !== "ADMIN" && session.user.rol !== "SUPER_ADMIN")) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 

@@ -7,7 +7,7 @@ import { generarCodigoCliente, generarPassword, hashearPassword } from "@/lib/ut
 export async function GET(request: NextRequest) {
   const session = await auth()
   
-  if (!session || session.user.rol !== "ADMIN") {
+  if (!session || (session.user.rol !== "ADMIN" && session.user.rol !== "SUPER_ADMIN")) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const session = await auth()
   
-  if (!session || session.user.rol !== "ADMIN") {
+  if (!session || (session.user.rol !== "ADMIN" && session.user.rol !== "SUPER_ADMIN")) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const session = await auth()
   
-  if (!session || session.user.rol !== "ADMIN") {
+  if (!session || (session.user.rol !== "ADMIN" && session.user.rol !== "SUPER_ADMIN")) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 

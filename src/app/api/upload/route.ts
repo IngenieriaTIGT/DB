@@ -9,7 +9,7 @@ import { existsSync } from "fs"
 export async function POST(request: NextRequest) {
   const session = await auth()
   
-  if (!session || session.user.rol !== "ADMIN") {
+  if (!session || (session.user.rol !== "ADMIN" && session.user.rol !== "SUPER_ADMIN")) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 })
   }
 
