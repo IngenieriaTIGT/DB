@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
   const clientes = await prisma.cliente.findMany({
     include: {
       usuario: {
-        select: { id: true, email: true, nombre: true, activo: true, imagen: true }
+        select: { id: true, email: true, nombre: true, activo: true }
       },
       _count: {
         select: { trabajos: true }
