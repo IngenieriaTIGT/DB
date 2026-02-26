@@ -1,56 +1,41 @@
-import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 
-export default auth((req) => {
-  const { nextUrl } = req
-  const isLoggedIn = !!req.auth
-  const user = req.auth?.user
+// Este middleware solo verifica la existencia del token de sesión
+// La verificación completa de autenticación se hace en los layouts
 
-  // Rutas públicas
+export function middleware(request: NextRequest) {
+  const { nextUrl } = request
+  
+  // Verificar si existe la cookie de sesión de NextAuth
+  const sessionToken = request.cookies.get("next-auth.session-token") || 
+                       request.cookies.get("__Secure-next-auth.session-token")
+  
+  const isLoggedIn = !!sessionToken?.value
   const isPublicRoute = nextUrl.pathname === "/login" || nextUrl.pathname === "/"
 
+  // Rutas protegidas
+  const isAdminRoute = nextUrl.pathname.startsWith("/dashboard") || 
+                       nextUrl.pathname.startsWith("/clientes") ||
+                       nextUrl.pathname.startsWith("/trabajos") ||
+                       nextUrl.pathname.startsWith("/tipos-servicio")
+  
+  const isClienteRoute = nextUrl.pathname.startsWith("/portal")
+
   // Si no está logueado y trata de acceder a ruta protegida
-  if (!isLoggedIn && !isPublicRoute) {
+  if (!isLoggedIn && (isAdminRoute || isClienteRoute)) {
     return NextResponse.redirect(new URL("/login", nextUrl))
   }
 
-  // Si está logueado y trata de acceder a login
-  if (isLoggedIn && nextUrl.pathname === "/login") {
-    // Redirigir según rol
-    if (user?.rol === "ADMIN") {
-      return NextResponse.redirect(new URL("/dashboard", nextUrl))
-    }
-    return NextResponse.redirect(new URL("/portal", nextUrl))
-  }
-
-  // Si está logueado en la raíz
-  if (isLoggedIn && nextUrl.pathname === "/") {
-    if (user?.rol === "ADMIN") {
-      return NextResponse.redirect(new URL("/dashboard", nextUrl))
-    }
-    return NextResponse.redirect(new URL("/portal", nextUrl))
-  }
-
-  // Proteger rutas de admin
-  if (nextUrl.pathname.startsWith("/dashboard") || 
-      nextUrl.pathname.startsWith("/clientes") ||
-      nextUrl.pathname.startsWith("/trabajos") ||
-      nextUrl.pathname.startsWith("/tipos-servicio")) {
-    if (user?.rol !== "ADMIN") {
-      return NextResponse.redirect(new URL("/portal", nextUrl))
-    }
-  }
-
-  // Proteger rutas de cliente
-  if (nextUrl.pathname.startsWith("/portal")) {
-    if (user?.rol !== "CLIENTE") {
-      return NextResponse.redirect(new URL("/dashboard", nextUrl))
-    }
+  // Si está logueado y trata de acceder a login o raíz
+  if (isLoggedIn && (nextUrl.pathname === "/login" || nextUrl.pathname === "/")) {
+    // Redirigir a una página por defecto
+    return NextResponse.redirect(new URL("/redirect", nextUrl))
   }
 
   return NextResponse.next()
-})
+}
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|uploads).*)"]
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|uploads|redirect).*)"]
 }
