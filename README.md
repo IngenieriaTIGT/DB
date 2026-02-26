@@ -53,15 +53,7 @@ npm run seed
 # Iniciar servidor de desarrollo
 npm run dev
 ```
-
-El servidor estará disponible en: http://localhost:3000
-
 ## 🔐 Credenciales por Defecto
-
-Después de ejecutar el seed:
-
-- **Admin**: `admin@poligrafo.com` / `admin123`
-
 ## 📁 Estructura del Proyecto
 
 ```
@@ -92,27 +84,6 @@ src/
 
 ## 🚀 Despliegue
 
-### Vercel (Recomendado)
-
-1. Conectar repositorio a Vercel
-2. Configurar variables de entorno
-3. Desplegar automáticamente
-
-### Variables de Entorno para Producción
-
-```env
-DATABASE_URL="postgresql://user:password@host:5432/database"
-NEXTAUTH_URL="https://tu-dominio.com"
-NEXTAUTH_SECRET="clave-secreta-muy-segura-32-caracteres"
-UPLOAD_DIR="/tmp/uploads"
-```
-
-### Pasos para Vercel:
-
-1. Crear cuenta en [Vercel](https://vercel.com)
-2. Importar repositorio desde GitHub
-3. Configurar variables de entorno en Settings > Environment Variables
-4. Deployar
 
 ## 📝 Scripts Disponibles
 
